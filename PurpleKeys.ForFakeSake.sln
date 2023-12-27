@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurpleKeys.ForFakeSake", "PurpleKeys.ForFakeSake\PurpleKeys.ForFakeSake.csproj", "{F6D1D614-EB2F-46CD-AB2C-3BC25339AABF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurpleKeys.ForFakeSake.UnitTest", "PurpleKeys.ForFakeSake.UnitTest\PurpleKeys.ForFakeSake.UnitTest.csproj", "{ACC219FE-AE40-4E49-9E0A-4BE8D454E557}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6D1D614-EB2F-46CD-AB2C-3BC25339AABF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6D1D614-EB2F-46CD-AB2C-3BC25339AABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6D1D614-EB2F-46CD-AB2C-3BC25339AABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6D1D614-EB2F-46CD-AB2C-3BC25339AABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACC219FE-AE40-4E49-9E0A-4BE8D454E557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACC219FE-AE40-4E49-9E0A-4BE8D454E557}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACC219FE-AE40-4E49-9E0A-4BE8D454E557}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACC219FE-AE40-4E49-9E0A-4BE8D454E557}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EBA2C86E-CBFF-40FA-B819-BE053B919D34}
+	EndGlobalSection
+EndGlobal

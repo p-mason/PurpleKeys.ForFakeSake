@@ -2,6 +2,7 @@
 using System.Reflection;
 using Castle.DynamicProxy;
 using PurpleKeys.ForFakeSake.Internal;
+using PurpleKeys.ForFakeSake.Spy;
 
 namespace PurpleKeys.ForFakeSake;
 
@@ -9,15 +10,17 @@ public class FakeBuilder<T>
     where T : class
 {
     private readonly Dictionary<string, List<FakeSetup>> _setups = new();
+    private readonly List<IInterceptor> _interceptors = new();
     
     public T Build()
     {
         var proxyGenerator = new ProxyGenerator();
         var interceptor = new FakeInterceptor<T>(_setups);
+        var interceptors = _interceptors.Union(new[] { interceptor }).ToArray();
         
         return typeof(T).IsInterface 
-            ? proxyGenerator.CreateInterfaceProxyWithoutTarget<T>(ProxyGenerationOptions.Default, interceptor) 
-            : proxyGenerator.CreateClassProxy<T>(ProxyGenerationOptions.Default, interceptor);
+            ? proxyGenerator.CreateInterfaceProxyWithoutTarget<T>(ProxyGenerationOptions.Default, interceptors) 
+            : proxyGenerator.CreateClassProxy<T>(ProxyGenerationOptions.Default, interceptors);
     }
 
     public FakeBuilder<T> PropertyAlwaysReturns(Expression<Func<T, bool>> propertyExpression)
@@ -34,10 +37,9 @@ public class FakeBuilder<T>
 
     public FakeBuilder<T> PropertySetAlways(string propertyName, Action<IDictionary<string, object>> execute)
     {
-        var key = typeof(T).GetProperty(propertyName).ToString();
-        var setup = new FakeSetup((_) => true, true, execute, null);
-        var foo = new List<FakeSetup>();
-        foo.Add(setup);
+        var key = typeof(T).GetProperty(propertyName)!.ToString()!;
+        var setup = new FakeSetup(_ => true, true, execute, null);
+        var foo = new List<FakeSetup> { setup };
         _setups.Add(key, foo);
         
         return this;
@@ -136,7 +138,7 @@ public class FakeBuilder<T>
     {
         _setups.Add(FakeInterceptor<T>.MethodsNoSetup, new List<FakeSetup>
         {
-            new ((_) => true, false, (_) => throw new NotImplementedException(), null)
+            new (_ => true, false, _ => throw new NotImplementedException(), null)
         });
         
         return this;
@@ -150,6 +152,12 @@ public class FakeBuilder<T>
             StubMethod(stub.ToString()!, action);    
         }
         
+        return this;
+    }
+
+    public FakeBuilder<T> WithSpy(SpyInterceptor spy)
+    {
+        _interceptors.Add(spy);       
         return this;
     }
 }

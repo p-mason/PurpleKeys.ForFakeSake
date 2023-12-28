@@ -1,4 +1,5 @@
 ﻿using Castle.DynamicProxy;
+using PurpleKeys.ForFakeSake.Spy;
 
 namespace PurpleKeys.ForFakeSake;
 
@@ -12,11 +13,20 @@ public static class Fake<T>
     
     public static T Empty()
     {
+        return CreateEmpty(new FakeInterceptor<T>());
+    }
+
+    public static T EmptyWithSpy(SpyInterceptor spy)
+    {
+        return CreateEmpty(spy, new FakeInterceptor<T>());
+    }
+
+    private static T CreateEmpty(params IInterceptor[] interceptors)
+    {
         var proxyGenerator = new ProxyGenerator();
-        var interceptor = new FakeInterceptor<T>();
         
         return typeof(T).IsInterface 
-            ? proxyGenerator.CreateInterfaceProxyWithoutTarget<T>(ProxyGenerationOptions.Default, interceptor) 
-            : proxyGenerator.CreateClassProxy<T>(ProxyGenerationOptions.Default, interceptor);
+            ? proxyGenerator.CreateInterfaceProxyWithoutTarget<T>(ProxyGenerationOptions.Default, interceptors) 
+            : proxyGenerator.CreateClassProxy<T>(ProxyGenerationOptions.Default, interceptors);
     }
 }

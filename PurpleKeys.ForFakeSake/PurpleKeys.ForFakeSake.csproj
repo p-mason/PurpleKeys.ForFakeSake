@@ -4,10 +4,25 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>0.1.0</Version>
+        <Description>Faking Solution</Description>
+        <PackageProjectUrl>https://github.com/p-mason/PurpleKeys.ForFakeSake</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/p-mason/PurpleKeys.ForFakeSake</RepositoryUrl>
+        <PackageTags>UnitTest</PackageTags>
+        <PackageLicenseUrl>https://choosealicense.com/licenses/gpl-3.0/</PackageLicenseUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Castle.Core" Version="5.1.1" />
+    </ItemGroup>
+	<PropertyGroup>    
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>        
+        <None Include="README.md" Pack="true" PackagePath="\"/>        
     </ItemGroup>
 
 </Project>

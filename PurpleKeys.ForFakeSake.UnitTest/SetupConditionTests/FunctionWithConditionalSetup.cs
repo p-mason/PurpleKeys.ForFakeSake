@@ -10,8 +10,8 @@ public class FunctionWithConditionalSetup
     {
         Fake = Fake<ITestInterface>
             .Builder()
-            .FakeMethod("Func", FakeFunc<string>.WhenArgs(args => args.Equals("arg1", "BoB")).Returns("SetupValue"))
-            .FakeMethod("Func", FakeFunc<string>.WhenArgs(args => args.Equals("arg1", "Dave")).Returns("SetupValue2"))
+            .FakeMethod("Func", FakeFunc<string>.WhenArgs(args => args.Contains("arg1", "BoB")).Returns("SetupValue"))
+            .FakeMethod("Func", FakeFunc<string>.WhenArgs(args => args.Contains("arg1", "Dave")).Returns("SetupValue2"))
             .FakeMethodDefault("Func", _ => "Default")
             .Build();
     }

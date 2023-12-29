@@ -37,7 +37,7 @@ public class FakeBuilder<T>
     /// <returns></returns>
     public FakeBuilder<T> PropertySetExecutes(string propertyName, Action<IDictionary<string, object>> execute) {
         var key = ReflectionUtility.PropertySetSignature<T>(propertyName);
-        var setup = new FakeSetup(_ => true, true, execute, null);
+        var setup = new FakeSetup(FakeCondition.Satisfied, true, execute, null);
         _setups.AddSetup(key, setup);
 
         return this;
@@ -75,7 +75,7 @@ public class FakeBuilder<T>
         string methodSignature,
         Expression<Action<IDictionary<string, object>>> stubAction) 
     {
-        var stubSetup = new FakeSetup(_ => true, false, stubAction.Compile(), null);
+        var stubSetup = new FakeSetup(FakeCondition.Satisfied, false, stubAction.Compile(), null);
         _setups.AddSetup(methodSignature, stubSetup);
 
         return this;
@@ -103,7 +103,7 @@ public class FakeBuilder<T>
             expression = Expression.Lambda<Func<IDictionary<string, object>, object>>(body, parameters);
         }
 
-        var stubSetup = new FakeSetup(_ => true, true, null, expression.Compile());
+        var stubSetup = new FakeSetup(FakeCondition.Satisfied, true, null, expression.Compile());
         _setups.AddSetup(methodSignature, stubSetup);
 
         return this;
@@ -134,7 +134,7 @@ public class FakeBuilder<T>
     /// instance of <see cref="System.NotImplementedException"/> </exception>
     public FakeBuilder<T> MethodsWithNoSetupThrowNotImplementedException() {
         _setups.Add(FakeInterceptor<T>.MethodsNoSetup, new List<FakeSetup> {
-            new(_ => true, false, _ => throw new NotImplementedException("Fake Member has not been setup"), null)
+            new(FakeCondition.Satisfied, false, _ => throw new NotImplementedException("Fake Member has not been setup"), null)
         });
 
         return this;

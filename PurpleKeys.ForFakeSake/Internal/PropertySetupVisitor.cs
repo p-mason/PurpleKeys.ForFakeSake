@@ -28,7 +28,7 @@ internal class PropertySetupVisitor<T> : ExpressionVisitor
                     if (binExp.Right is ConstantExpression constExp)
                     {
                         var sig = ToKey(memberExpr);
-                        var setup = new FakeSetup((_) => true, true, (_) => { }, (_) => constExp.Value);
+                        var setup = new FakeSetup(FakeCondition.Satisfied, true, (_) => { }, (_) => constExp.Value);
                         _properties.Add(sig, new List<FakeSetup>{setup});
                     }
                     else
@@ -42,7 +42,7 @@ internal class PropertySetupVisitor<T> : ExpressionVisitor
                                     Expression.Invoke(readExpression.Arguments[1]),
                                     typeof(object)))
                                 .Compile();
-                            var setup = new FakeSetup((_) => true, true, (_) => { }, (_) => readPropertyValue());
+                            var setup = new FakeSetup(FakeCondition.Satisfied, true, (_) => { }, (_) => readPropertyValue());
                             _properties.Add(sig, new List<FakeSetup>{setup});
                         }
                     }

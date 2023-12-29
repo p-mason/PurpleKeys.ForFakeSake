@@ -2,8 +2,8 @@
 
 public static class FakeProperty<TReturn>
 {
-    public static FakeCondition<TReturn> When(Func<bool> condition)
+    public static FakeCondition When(Func<bool> condition)
     {
-        return new FakeCondition<TReturn>(_ => condition());
+        return new FakeCondition(_ => condition());
     }
 }

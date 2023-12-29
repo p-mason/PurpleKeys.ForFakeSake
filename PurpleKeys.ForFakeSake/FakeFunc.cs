@@ -13,13 +13,13 @@ public static class FakeFunc<TReturn>
         return Expression.Lambda<Func<IDictionary<string, object>, TReturn>>(body, new []{parameters});
     }
 
-    public static FakeCondition<TReturn> WhenArgs(Func<IDictionary<string, object>, bool> condition)
+    public static FakeCondition WhenArgs(Func<IDictionary<string, object>, bool> condition)
     {
-        return new FakeCondition<TReturn>(condition);
+        return new FakeCondition(condition);
     }
 
-    public static FakeCondition<TReturn> When(Func<bool> condition)
+    public static FakeCondition When(Func<bool> condition)
     {
-        return new FakeCondition<TReturn>(_ => condition());
+        return new FakeCondition(_ => condition());
     }
 }

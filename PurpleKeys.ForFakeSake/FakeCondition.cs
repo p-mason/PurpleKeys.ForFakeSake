@@ -3,17 +3,16 @@
 /// <summary>
 ///     Represents a condition for a FakeSetup that needs to be satisfied for the Fake to be applied
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public class FakeCondition<T> {
+public class FakeCondition {
     /// <summary>
     ///     Condition that is always satisfied.
     /// </summary>
-    public static readonly FakeCondition<T> Satisfied = new(_ => true);
+    public static readonly FakeCondition Satisfied = new(_ => true);
 
     /// <summary>
     ///     Condition that is never satisfied.
     /// </summary>
-    public static readonly FakeCondition<T> NotSatisfied = new(_ => false);
+    public static readonly FakeCondition NotSatisfied = new(_ => false);
 
     /// <summary>
     ///     Creates an instance of Fake Condition

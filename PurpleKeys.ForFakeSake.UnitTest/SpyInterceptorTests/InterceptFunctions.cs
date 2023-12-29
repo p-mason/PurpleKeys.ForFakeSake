@@ -12,7 +12,7 @@ public class InterceptFunctions
     static InterceptFunctions()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("OverloadFunc", args => string.Join(',', args.Select(i =>$"{i.Key}:{i.Value}")))
+            .AllFunctionOverloads("OverloadFunc", args => string.Join(',', args.Select(i =>$"{i.Key}:{i.Value}")))
             .Build();
         
         var proxy = new ProxyGenerator().CreateInterfaceProxyWithTarget(fake, Spy);

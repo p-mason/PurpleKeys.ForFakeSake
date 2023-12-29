@@ -21,7 +21,7 @@ public class FakingInterfaceMethods
     {
         var count = 1;
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("ReferenceFunc", (_) => count.ToString())
+            .AllFunctionOverloads("ReferenceFunc", (_) => count.ToString())
             .Build();
         
         Assert.Equal("1", fake.ReferenceFunc());
@@ -33,7 +33,7 @@ public class FakingInterfaceMethods
     public void GivenFakeBuilder_AllMethodOverloads_AllFunctionParametersAreAvailable()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("OverloadedFunction",
+            .AllFunctionOverloads("OverloadedFunction",
                 (args) => string.Join('\n', args.Select(a => $"{a.Key}:{a.Value}")))
             .Build();
         
@@ -51,7 +51,7 @@ public class FakingInterfaceMethods
         var action = new Action<IDictionary<string, object?>>(a => result = string.Join('\n', a.Select(a => $"{a.Key}:{a.Value}")));
         
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("OverloadedAction", _ => action(_))
+            .AllActionOverloads("OverloadedAction", _ => action(_))
             .Build();
         
         fake.OverloadedAction("Arg1", 2);
@@ -65,8 +65,8 @@ public class FakingInterfaceMethods
     public void GivenFakeBuilder_AllMethodOverloads_AppliesToAllMethodsWithMatchingReturnType()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("OverloadedFunction", (_) => "StubValue")
-            .AllMethodOverloads("OverloadedFunction", (_) => 123)
+            .AllFunctionOverloads("OverloadedFunction", (_) => "StubValue")
+            .AllFunctionOverloads("OverloadedFunction", (_) => 123)
             .Build();
         
         
@@ -82,7 +82,7 @@ public class FakingInterfaceMethods
     public void GivenFakeBuilder_AllMethodOverloads_FunctionsCanThrowException()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("ValueFunc", FakeFunc<int>.Throws(new ArgumentException("args")))
+            .AllFunctionOverloads("ValueFunc", FakeFunc<int>.Throws(new ArgumentException("args")))
             .Build();
         
         Assert.Throws<ArgumentException>(() => fake.ValueFunc());
@@ -92,7 +92,7 @@ public class FakingInterfaceMethods
     public void GivenFakeBuilder_AllMethodOverloads_ActionsCanThrowException()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("Action", FakeAction.Throws(new ArgumentException("args")))
+            .AllActionOverloads("Action", FakeAction.Throws(new ArgumentException("args")))
             .Build();
 
         Assert.Throws<ArgumentException>(() => fake.Action());
@@ -102,7 +102,7 @@ public class FakingInterfaceMethods
     public void GivenFakeBuilder_MethodsWithNoSetupThrowNotImplementedException_CausesMethodsWithNoSetupToError()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .AllMethodOverloads("ReferenceFunc", (_) => "TestValue")
+            .AllFunctionOverloads("ReferenceFunc", (_) => "TestValue")
             .MethodsWithNoSetupThrowNotImplementedException()
             .Build();
 

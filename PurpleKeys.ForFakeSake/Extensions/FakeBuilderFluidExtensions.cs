@@ -1,4 +1,4 @@
-﻿namespace PurpleKeys.ForFakeSake;
+﻿namespace PurpleKeys.ForFakeSake.Extensions;
 
 public static class FakeBuilderFluidExtensions
 {

@@ -32,37 +32,52 @@ internal class FakeInterceptor<T> : IInterceptor
                 k => k.First.Name ?? throw new NotSupportedException("Parameters Must Have a Name."), 
                 v => v.Second);
         
-        if (invocation.Method.IsSpecialName)
+        if (invocation.Method.IsSpecialName && invocation.Method.IsHideBySig)
         {
-            if (invocation.Method.Name.StartsWith("get_"))
+            var propertyName = invocation.Method.Name.Substring(4);
+            var property = typeof(T).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public);
+            if (property != null)
             {
-                var propertyName = invocation.Method.Name.Substring(4);
-                
-                if (_setups.TryGetValue($"{invocation.Method.ReturnType} {propertyName}", out var setup))
+
+                if (_setups.TryGetValue(invocation.Method.ToString()!, out var setup))
                 {
-                    var matchedSetup = setup.First(s => s.MeetsCondition(argsDictionary));
-                    invocation.ReturnValue = matchedSetup.Func(argsDictionary);
-                    return;
-                } 
-                if (_instanceProperties.TryGetValue(propertyName, out var property))
-                {
-                    invocation.ReturnValue = property.Get();
-                    return;
+                    var matchedSetup = setup.FirstOrDefault(s => s.MeetsCondition(argsDictionary));
+                    if (property.CanRead && property.GetMethod == invocation.Method)
+                    {
+                        if (matchedSetup != null)
+                        {
+                            invocation.ReturnValue = matchedSetup.Func(argsDictionary);
+                            return;
+                        }
+                    }
+
+                    if (property.CanWrite && property.SetMethod == invocation.Method)
+                    {
+                        if (matchedSetup != null)
+                        {
+                            matchedSetup.Action(argsDictionary);
+                            return;
+                        }
+                    }
                 }
-            }
-            else if (invocation.Method.Name.StartsWith("set_"))
-            {
-                var propertyName = invocation.Method.Name.Substring(4);
-                if (_setups.TryGetValue($"{invocation.Arguments.Single().GetType()} {propertyName}", out var setup))
+                else
                 {
-                    var matchedSetup = setup.First(s => s.MeetsCondition(argsDictionary));
-                    matchedSetup.Action(argsDictionary);
-                    return;
-                } 
-                if (_instanceProperties.TryGetValue(propertyName, out var property))
-                {
-                    property.Set(invocation.Arguments.First());
-                    return;
+                    if (property.CanRead && property.GetMethod == invocation.Method)
+                    {
+                        if (_instanceProperties.TryGetValue(propertyName, out var instanceProperty))
+                        {
+                            invocation.ReturnValue = instanceProperty.Get();
+                            return;
+                        }
+                    }
+                    if (property.CanWrite && property.SetMethod == invocation.Method)
+                    {
+                        if (_instanceProperties.TryGetValue(propertyName, out var instanceProperty))
+                        {
+                            instanceProperty.Set(invocation.Arguments.First());
+                            return;
+                        }
+                    }
                 }
             }
         }

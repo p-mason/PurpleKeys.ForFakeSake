@@ -37,10 +37,9 @@ public class FakeBuilder<T>
 
     public FakeBuilder<T> PropertySetAlways(string propertyName, Action<IDictionary<string, object>> execute)
     {
-        var key = typeof(T).GetProperty(propertyName)!.ToString()!;
+        var key = typeof(T).GetProperty(propertyName)!.SetMethod!.ToString()!;
         var setup = new FakeSetup(_ => true, true, execute, null);
-        var foo = new List<FakeSetup> { setup };
-        _setups.Add(key, foo);
+        _setups.Add(key, new List<FakeSetup> { setup });
         
         return this;
     }
@@ -83,7 +82,12 @@ public class FakeBuilder<T>
         }
         
         var stubSetup = new FakeSetup((_) => true, true, null, expression.Compile());
-        _setups.Add(methodSignature, new List<FakeSetup> { stubSetup });
+        if (!_setups.TryGetValue(methodSignature, out var memberSetups))
+        {
+            memberSetups = new List<FakeSetup>();
+            _setups.Add(methodSignature, memberSetups);
+        }
+        memberSetups.Add(stubSetup);
         
         return this;
     }
@@ -159,5 +163,69 @@ public class FakeBuilder<T>
     {
         _interceptors.Add(spy);       
         return this;
+    }
+
+    public FakeBuilder<T> FakeMethod(string memberName, FakeSetup setup)
+    {
+        foreach (var member in typeof(T).GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                     .Where(m => m.Name == memberName))
+        {
+            if (!_setups.TryGetValue(member.ToString()!, out var memberSetups))
+            {
+                memberSetups = new List<FakeSetup>();
+                _setups.Add(member.ToString()!, memberSetups);
+            }
+            memberSetups.Add(setup);    
+        }
+        
+        return this;
+    }
+
+    public FakeBuilder<T> FakeMethodDefault(string memberName, Func<IDictionary<string, object>, object> defaultReturn)
+    {
+        foreach (var member in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                     .Where(m => m.Name == memberName))
+        {
+            StubMethod(member.ToString(), args => defaultReturn(args));
+        }
+
+        return this;
+    }
+
+    public FakeBuilder<T> FakeProperty(string propertyName, FakeSetup fakeSetup)
+    {
+        foreach (var member in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                     .Where(m => m.Name == propertyName))
+        { 
+            StubProperty(member.Name, fakeSetup);
+        }
+        return this;
+    }
+
+    private void StubProperty(string propertyName, FakeSetup fakeSetup)
+    {
+        foreach (var prop in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.Name == propertyName))
+        {
+            string key;
+            if (fakeSetup is PropertyGetFakeSetup && prop.CanRead)
+            {
+                key = prop.GetMethod!.ToString()!;
+            }
+            else if (fakeSetup is PropertySetFakeSetup && prop.CanWrite)
+            {
+                key = prop.SetMethod!.ToString()!;    
+            }
+            else
+            {
+                throw new Exception();
+            }
+            
+            if (!_setups.TryGetValue(key, out var memberSetups))
+            {
+                memberSetups = new List<FakeSetup>();
+                _setups.Add(key, memberSetups);
+            }
+            memberSetups.Add(fakeSetup); 
+        }
     }
 }

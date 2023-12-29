@@ -58,6 +58,6 @@ internal class PropertySetupVisitor<T> : ExpressionVisitor
     private string ToKey(MemberExpression expression)
     {
         var property = (PropertyInfo)expression.Member;
-        return $"{property.PropertyType.ToString()} {property.Name}";
+        return property.GetMethod!.ToString()!;
     }
 }

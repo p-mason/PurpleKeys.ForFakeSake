@@ -1,4 +1,7 @@
 ﻿// ReSharper disable AccessToModifiedClosure
+
+using PurpleKeys.ForFakeSake.Extensions;
+
 namespace PurpleKeys.ForFakeSake.UnitTest;
 
 public class FakingInterfaceProperties

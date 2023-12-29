@@ -2,22 +2,22 @@ namespace PurpleKeys.ForFakeSake.Extensions;
 
 public static class DictionaryExtensions
 {
-    public static bool Equals<T>(this IDictionary<string, object> args, string key,  T value)
+    public static bool Contains<T>(this IDictionary<string, object> args, string key,  T value)
     {
-        return Equals(args, key, value, EqualityComparer<T>.Default);
+        return Contains(args, key, value, EqualityComparer<T>.Default);
     }
     
-    public static bool Equals<T>(this IDictionary<string, object> args, string key,  T value, IEqualityComparer<T> comparer)
+    public static bool Contains<T>(this IDictionary<string, object> args, string key,  T value, IEqualityComparer<T> comparer)
     {
         return args.TryGetValue(key, out var condition) && comparer.Equals((T)condition, value);
     }
     
-    public static bool NotEquals<T>(this IDictionary<string, object> args, string key,  T value)
+    public static bool NotContaining<T>(this IDictionary<string, object> args, string key,  T value)
     {
-        return NotEquals(args, key, value, EqualityComparer<T>.Default);
+        return NotContaining(args, key, value, EqualityComparer<T>.Default);
     }
     
-    public static bool NotEquals<T>(this IDictionary<string, object> args, string key,  T value, IEqualityComparer<T> comparer)
+    public static bool NotContaining<T>(this IDictionary<string, object> args, string key,  T value, IEqualityComparer<T> comparer)
     {
         return args.TryGetValue(key, out var condition) && !comparer.Equals((T)condition, value);
     }

@@ -32,7 +32,7 @@ internal class FakeInterceptor<T> : IInterceptor
         {
             if (_setups.TryGetValue(invocation.Method.ToString()!, out var setup))
             {
-                var matchedSetup = setup.FirstOrDefault(s => s.MeetsCondition(argsDictionary));
+                var matchedSetup = setup.FirstOrDefault(s => s.MeetsCondition.Condition(argsDictionary));
                 if (property.CanRead && property.GetMethod == invocation.Method)
                 {
                     if (matchedSetup != null)
@@ -73,7 +73,7 @@ internal class FakeInterceptor<T> : IInterceptor
         
         if (_setups.TryGetValue(invocation.Method.ToString(), out var methodSetups))
         {
-            var use = methodSetups.FirstOrDefault(s => s.MeetsCondition(argsDictionary));
+            var use = methodSetups.FirstOrDefault(s => s.MeetsCondition.Condition(argsDictionary));
             if (use != null)
             {
                 if (use.HasReturnValue)

@@ -3,7 +3,7 @@
 public class PropertyGetFakeSetup : FakeSetup
 {
     public PropertyGetFakeSetup(
-        Func<IDictionary<string, object>, bool> meetsCondition,
+        FakeCondition meetsCondition,
         Func<IDictionary<string, object>, object>? func) 
         : base(meetsCondition,
         true,
@@ -16,7 +16,7 @@ public class PropertyGetFakeSetup : FakeSetup
 public class PropertySetFakeSetup : FakeSetup
 {
     public PropertySetFakeSetup(
-        Func<IDictionary<string, object>, bool> meetsCondition,
+        FakeCondition meetsCondition,
         Action<IDictionary<string, object>>? action) 
         : base(meetsCondition,
         false,
@@ -29,7 +29,7 @@ public class PropertySetFakeSetup : FakeSetup
 public class FakeSetup
 {
     public FakeSetup(
-        Func<IDictionary<string, object>, bool> meetsCondition,
+        FakeCondition meetsCondition,
         bool hasReturnValue,
         Action<IDictionary<string, object>>? action,
         Func<IDictionary<string, object>, object>? func)
@@ -40,7 +40,7 @@ public class FakeSetup
         Func = func;
     }
 
-    public Func<IDictionary<string, object>, bool> MeetsCondition { get; }
+    public FakeCondition MeetsCondition { get; }
     public bool HasReturnValue { get; }
     public Action<IDictionary<string, object>>? Action { get; }
     public Func<IDictionary<string, object>, object>? Func { get; }

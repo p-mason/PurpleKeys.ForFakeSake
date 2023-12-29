@@ -26,10 +26,10 @@ public class FakingInterfaceProperties
     }
 
     [Fact]
-    public void PropertyAlwaysReturnsSetupValue()
+    public void StubPropertiesAlwaysReturnsSetupValue()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .PropertyAlwaysReturns(t => t.ReferenceProperty == "AlwaysReturnsThis")
+            .StubProperties(t => t.ReferenceProperty == "AlwaysReturnsThis")
             .Build();
         
         Assert.Equal("AlwaysReturnsThis", fake.ReferenceProperty);
@@ -41,7 +41,7 @@ public class FakingInterfaceProperties
     public void WritingToThePropertyAlwaysThrowsAnException()
     {
         var fake = Fake<ITestInterface>.Builder()
-            .PropertySetAlways(nameof(ITestInterface.ReferenceProperty), (_) => throw new InvalidDataException("Test"))
+            .PropertySetExecutes(nameof(ITestInterface.ReferenceProperty), (_) => throw new InvalidDataException("Test"))
             .Build();
 
         Assert.Throws<InvalidDataException>(() => fake.ReferenceProperty = "Something");

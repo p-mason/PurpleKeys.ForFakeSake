@@ -11,8 +11,8 @@ public class InterceptExceptions
     {
         var fake = Fake<ITestInterface>
             .Builder()
-            .AllMethodOverloads("OverloadAction", FakeAction.Throws(new Exception("Boom")))
-            .AllMethodOverloads("OverloadFunc", FakeFunc<string>.Throws(new Exception("Boom")))
+            .AllActionOverloads("OverloadAction", FakeAction.Throws(new Exception("Boom")))
+            .AllFunctionOverloads("OverloadFunc", FakeFunc<string>.Throws(new Exception("Boom")))
             .Build();
 
         var proxy = new ProxyGenerator().CreateInterfaceProxyWithTarget(fake, Spy);

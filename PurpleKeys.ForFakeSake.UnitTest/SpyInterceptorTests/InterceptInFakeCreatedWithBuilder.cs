@@ -1,4 +1,5 @@
-﻿using PurpleKeys.ForFakeSake.Spy;
+﻿using PurpleKeys.ForFakeSake.Extensions;
+using PurpleKeys.ForFakeSake.Spy;
 
 namespace PurpleKeys.ForFakeSake.UnitTest.SpyInterceptorTests;
 

@@ -23,7 +23,7 @@ internal class PropertySetupVisitor<T> : ExpressionVisitor
             if (binExp.Left.NodeType == ExpressionType.MemberAccess)
             {
                 var memberExpr = (MemberExpression)binExp.Left;
-                if (memberExpr.Member.DeclaringType == _declaringType && memberExpr.Member.MemberType == MemberTypes.Property)
+                if (ReflectionUtility.IsPropertyOnType(_declaringType, memberExpr.Member))
                 {
                     if (binExp.Right is ConstantExpression constExp)
                     {
@@ -45,8 +45,6 @@ internal class PropertySetupVisitor<T> : ExpressionVisitor
                             var setup = new FakeSetup((_) => true, true, (_) => { }, (_) => readPropertyValue());
                             _properties.Add(sig, new List<FakeSetup>{setup});
                         }
-                         
-                        Console.WriteLine("HERE");
                     }
                 }
             }

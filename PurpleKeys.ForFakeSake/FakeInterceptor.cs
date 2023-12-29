@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Castle.DynamicProxy;
+﻿using Castle.DynamicProxy;
 using PurpleKeys.ForFakeSake.Internal;
 
 namespace PurpleKeys.ForFakeSake;
@@ -17,71 +16,61 @@ internal class FakeInterceptor<T> : IInterceptor
 
     public FakeInterceptor(IDictionary<string, List<FakeSetup>> setups)
     {
-        _instanceProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+        _instanceProperties = ReflectionUtility
+            .GetProperties<T>()
             .ToDictionary(p => p.Name, PropertyInterceptWrapper.Automatic);
+        
         _setups = setups;
     }
 
     public void Intercept(IInvocation invocation)
     {
         // ReSharper disable once HeapView.ClosureAllocation
-        var argsDictionary = invocation.Method
-            .GetParameters()
-            .Zip(invocation.Arguments)
-            .ToDictionary(
-                k => k.First.Name ?? throw new NotSupportedException("Parameters Must Have a Name."), 
-                v => v.Second);
-        
-        if (invocation.Method.IsSpecialName && invocation.Method.IsHideBySig)
+        var argsDictionary = ReflectionUtility.ZipParametersAndArguments(invocation.Method, invocation.Arguments);
+
+        if (ReflectionUtility.TryFindProperty<T>(invocation.Method, out var property))
         {
-            var propertyName = invocation.Method.Name.Substring(4);
-            var property = typeof(T).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public);
-            if (property != null)
+            if (_setups.TryGetValue(invocation.Method.ToString()!, out var setup))
             {
-
-                if (_setups.TryGetValue(invocation.Method.ToString()!, out var setup))
+                var matchedSetup = setup.FirstOrDefault(s => s.MeetsCondition(argsDictionary));
+                if (property.CanRead && property.GetMethod == invocation.Method)
                 {
-                    var matchedSetup = setup.FirstOrDefault(s => s.MeetsCondition(argsDictionary));
-                    if (property.CanRead && property.GetMethod == invocation.Method)
+                    if (matchedSetup != null)
                     {
-                        if (matchedSetup != null)
-                        {
-                            invocation.ReturnValue = matchedSetup.Func(argsDictionary);
-                            return;
-                        }
-                    }
-
-                    if (property.CanWrite && property.SetMethod == invocation.Method)
-                    {
-                        if (matchedSetup != null)
-                        {
-                            matchedSetup.Action(argsDictionary);
-                            return;
-                        }
+                        invocation.ReturnValue = matchedSetup.Func(argsDictionary);
+                        return;
                     }
                 }
-                else
+
+                if (property.CanWrite && property.SetMethod == invocation.Method)
+                {
+                    if (matchedSetup != null)
+                    {
+                        matchedSetup.Action(argsDictionary);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+
+                if (_instanceProperties.TryGetValue(property.Name, out var instanceProperty))
                 {
                     if (property.CanRead && property.GetMethod == invocation.Method)
                     {
-                        if (_instanceProperties.TryGetValue(propertyName, out var instanceProperty))
-                        {
-                            invocation.ReturnValue = instanceProperty.Get();
-                            return;
-                        }
+                        invocation.ReturnValue = instanceProperty.Get();
+                        return;
                     }
+
                     if (property.CanWrite && property.SetMethod == invocation.Method)
                     {
-                        if (_instanceProperties.TryGetValue(propertyName, out var instanceProperty))
-                        {
-                            instanceProperty.Set(invocation.Arguments.First());
-                            return;
-                        }
+                        instanceProperty.Set(invocation.Arguments.First());
+                        return;
                     }
                 }
             }
         }
-
+        
         if (_setups.TryGetValue(invocation.Method.ToString(), out var methodSetups))
         {
             var use = methodSetups.FirstOrDefault(s => s.MeetsCondition(argsDictionary));

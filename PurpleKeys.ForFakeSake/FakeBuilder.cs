@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 using Castle.DynamicProxy;
 using PurpleKeys.ForFakeSake.Internal;
 using PurpleKeys.ForFakeSake.Spy;
@@ -37,7 +36,7 @@ public class FakeBuilder<T>
 
     public FakeBuilder<T> PropertySetAlways(string propertyName, Action<IDictionary<string, object>> execute)
     {
-        var key = typeof(T).GetProperty(propertyName)!.SetMethod!.ToString()!;
+        var key = ReflectionUtility.PropertySetSignature<T>(propertyName);
         var setup = new FakeSetup(_ => true, true, execute, null);
         _setups.Add(key, new List<FakeSetup> { setup });
         
@@ -130,8 +129,7 @@ public class FakeBuilder<T>
 
     public FakeBuilder<T> AllMethodOverloads<TReturn>(string functionName, Expression<Func<IDictionary<string, object>, TReturn>> func)
     {
-        foreach(var stub in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(m => m.Name.Equals(functionName) && m.ReturnType == typeof(TReturn)))
+        foreach(var stub in ReflectionUtility.GetFunctionOverloads<T, TReturn>(functionName))
         {
             StubMethod(stub.ToString()!, func);    
         }
@@ -150,8 +148,7 @@ public class FakeBuilder<T>
     
     public FakeBuilder<T> AllMethodOverloads(string actionName, Expression<Action<IDictionary<string, object>>> action)
     {
-        foreach(var stub in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(m => m.Name.Equals(actionName) && m.ReturnType == typeof(void)))
+        foreach(var stub in ReflectionUtility.GetActionOverloads<T>(actionName))
         {
             StubMethod(stub.ToString()!, action);    
         }
@@ -167,8 +164,7 @@ public class FakeBuilder<T>
 
     public FakeBuilder<T> FakeMethod(string memberName, FakeSetup setup)
     {
-        foreach (var member in typeof(T).GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                     .Where(m => m.Name == memberName))
+        foreach (var member in ReflectionUtility.GetMethodOverloads<T>(memberName))
         {
             if (!_setups.TryGetValue(member.ToString()!, out var memberSetups))
             {
@@ -181,10 +177,11 @@ public class FakeBuilder<T>
         return this;
     }
 
-    public FakeBuilder<T> FakeMethodDefault(string memberName, Func<IDictionary<string, object>, object> defaultReturn)
+    public FakeBuilder<T> FakeMethodDefault<TReturn>(
+        string memberName, 
+        Func<IDictionary<string, object>, TReturn> defaultReturn)
     {
-        foreach (var member in typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                     .Where(m => m.Name == memberName))
+        foreach (var member in ReflectionUtility.GetFunctionOverloads<T, TReturn>(memberName))
         {
             StubMethod(member.ToString(), args => defaultReturn(args));
         }
@@ -194,8 +191,7 @@ public class FakeBuilder<T>
 
     public FakeBuilder<T> FakeProperty(string propertyName, FakeSetup fakeSetup)
     {
-        foreach (var member in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                     .Where(m => m.Name == propertyName))
+        foreach (var member in ReflectionUtility.GetProperties<T>(propertyName))
         { 
             StubProperty(member.Name, fakeSetup);
         }
@@ -204,7 +200,7 @@ public class FakeBuilder<T>
 
     private void StubProperty(string propertyName, FakeSetup fakeSetup)
     {
-        foreach (var prop in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.Name == propertyName))
+        foreach (var prop in ReflectionUtility.GetProperties<T>(propertyName))
         {
             string key;
             if (fakeSetup is PropertyGetFakeSetup && prop.CanRead)

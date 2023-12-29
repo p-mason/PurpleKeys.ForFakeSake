@@ -28,9 +28,7 @@ internal class PropertyInterceptWrapper
             ? new Func<object?, object?>(v => v)
             : _ => throw new InvalidOperationException();
 
-        var initialValue = property.PropertyType.IsValueType
-            ? Activator.CreateInstance(property.PropertyType)
-            : null;
+        var initialValue = ReflectionUtility.CreatePropertyDefaultValue(property);
         
         return new PropertyInterceptWrapper(initialValue, read, write);
     }

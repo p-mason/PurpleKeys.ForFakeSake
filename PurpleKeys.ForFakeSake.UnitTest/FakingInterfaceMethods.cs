@@ -1,4 +1,5 @@
-using System.Linq.Expressions;
+using System.Diagnostics.CodeAnalysis;
+
 // ReSharper disable HeapView.ClosureAllocation
 
 namespace PurpleKeys.ForFakeSake.UnitTest;
@@ -125,33 +126,5 @@ public class FakingInterfaceMethods
         
         string OverloadedFunction(string arg1, int arg2);
         string OverloadedFunction(int arg1, int arg2);
-    }
-}
-
-public static class FakeFunc<TReturn>
-{
-    public static Expression<Func<IDictionary<string, object>,TReturn>> Throws(Exception exception)
-    {
-        var parameters = Expression.Parameter(typeof(IDictionary<string, object>), "args");
-        var def =Expression.Convert(Expression.Constant(default(TReturn)), typeof(TReturn));
-        var exp = Expression.Constant(exception);
-        var body = Expression.Block(Expression.Throw(exp), def);
-        return Expression.Lambda<Func<IDictionary<string, object>, TReturn>>(body, new []{parameters});
-    }
-}
-
-public static class FakeAction
-{
-    public static Expression<Action<IDictionary<string, object>>> Throws(Exception exception)
-    {
-        var parameters = Expression.Parameter(typeof(IDictionary<string, object>), "args");
-        var exp = Expression.Constant(exception);
-        var body = Expression.Throw(exp);
-        return Expression.Lambda<Action<IDictionary<string, object>>>(body, new []{parameters});
-    }
-
-    public static object Execute(Action<IDictionary<string, object>> action)
-    {
-        throw new NotImplementedException();
     }
 }

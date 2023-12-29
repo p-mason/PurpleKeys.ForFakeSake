@@ -8,7 +8,7 @@ namespace PurpleKeys.ForFakeSake;
 public class FakeBuilder<T>
     where T : class
 {
-    private readonly Dictionary<string, List<FakeSetup>> _setups = new();
+    private readonly SetupDictionary _setups = new();
     private readonly List<IInterceptor> _interceptors = new();
     
     public T Build()
@@ -38,7 +38,7 @@ public class FakeBuilder<T>
     {
         var key = ReflectionUtility.PropertySetSignature<T>(propertyName);
         var setup = new FakeSetup(_ => true, true, execute, null);
-        _setups.Add(key, new List<FakeSetup> { setup });
+        _setups.AddSetup(key, setup);
         
         return this;
     }
@@ -60,7 +60,7 @@ public class FakeBuilder<T>
     public FakeBuilder<T> StubMethod(string methodSignature, Expression<Action<IDictionary<string, object>>> stubAction)
     {
         var stubSetup = new FakeSetup((_) => true, false, stubAction.Compile(), null);
-        _setups.Add(methodSignature, new List<FakeSetup> { stubSetup });
+        _setups.AddSetup(methodSignature, stubSetup);
         
         return this;
     }
@@ -81,12 +81,7 @@ public class FakeBuilder<T>
         }
         
         var stubSetup = new FakeSetup((_) => true, true, null, expression.Compile());
-        if (!_setups.TryGetValue(methodSignature, out var memberSetups))
-        {
-            memberSetups = new List<FakeSetup>();
-            _setups.Add(methodSignature, memberSetups);
-        }
-        memberSetups.Add(stubSetup);
+        _setups.AddSetup(methodSignature, stubSetup);
         
         return this;
     }
@@ -98,14 +93,7 @@ public class FakeBuilder<T>
         
         foreach (var prop in visitor.PropertySetups)
         {
-            if (_setups.TryGetValue(prop.Key, out var existing))
-            {
-                existing.Add(prop.Value.First());
-            }
-            else
-            {
-                _setups.Add(prop.Key, prop.Value);
-            }
+            _setups.AddSetups(prop.Key, prop.Value);
         }
     }
 
@@ -116,14 +104,7 @@ public class FakeBuilder<T>
         
         foreach (var prop in visitor.PropertySetups)
         {
-            if (_setups.TryGetValue(prop.Key, out var existing))
-            {
-                existing.Add(prop.Value.First());
-            }
-            else
-            {
-                _setups.Add(prop.Key, prop.Value);
-            }
+            _setups.AddSetups(prop.Key, prop.Value);
         }
     }
 
@@ -166,12 +147,7 @@ public class FakeBuilder<T>
     {
         foreach (var member in ReflectionUtility.GetMethodOverloads<T>(memberName))
         {
-            if (!_setups.TryGetValue(member.ToString()!, out var memberSetups))
-            {
-                memberSetups = new List<FakeSetup>();
-                _setups.Add(member.ToString()!, memberSetups);
-            }
-            memberSetups.Add(setup);    
+            _setups.AddSetup(member.ToString()!, setup);
         }
         
         return this;
@@ -183,7 +159,7 @@ public class FakeBuilder<T>
     {
         foreach (var member in ReflectionUtility.GetFunctionOverloads<T, TReturn>(memberName))
         {
-            StubMethod(member.ToString(), args => defaultReturn(args));
+            StubMethod(member.ToString()!, args => defaultReturn(args));
         }
 
         return this;
@@ -215,13 +191,7 @@ public class FakeBuilder<T>
             {
                 throw new Exception();
             }
-            
-            if (!_setups.TryGetValue(key, out var memberSetups))
-            {
-                memberSetups = new List<FakeSetup>();
-                _setups.Add(key, memberSetups);
-            }
-            memberSetups.Add(fakeSetup); 
+            _setups.AddSetup(key, fakeSetup);
         }
     }
 }

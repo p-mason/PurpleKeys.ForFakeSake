@@ -2,7 +2,7 @@
 
 using PurpleKeys.ForFakeSake.Extensions;
 
-namespace PurpleKeys.ForFakeSake.UnitTest;
+namespace PurpleKeys.ForFakeSake.UnitTest.FakeInterceptor;
 
 public class FakingInterfaceProperties
 {

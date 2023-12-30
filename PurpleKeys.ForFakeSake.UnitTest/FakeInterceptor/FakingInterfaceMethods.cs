@@ -1,8 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
-
 // ReSharper disable HeapView.ClosureAllocation
 
-namespace PurpleKeys.ForFakeSake.UnitTest;
+namespace PurpleKeys.ForFakeSake.UnitTest.FakeInterceptor;
 
 public class FakingInterfaceMethods
 {
